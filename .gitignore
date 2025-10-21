@@ -1,0 +1,19 @@
+node_modules
+dist/
+.DS_Store
+
+# Exclude all .md files
+*.md
+
+#essential ones
+!README.md
+!SETUP.md
+!LICENSE.md
+
+# Development/testing docs
+CLEANUP_COMPLETE.md
+FUNCTIONALITY_COMPLETE.md
+TEST_CHECKLIST.md
+FUNCTIONALITY_REPORT.md
+PROJECT_STATUS.md
+TESTING_COMPLETE.md

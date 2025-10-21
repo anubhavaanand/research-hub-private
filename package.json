@@ -1,0 +1,79 @@
+{
+  "name": "research-hub",
+  "version": "1.0.0",
+  "description": "A comprehensive academic research papers management system with citation generation capabilities",
+  "main": "electron-main.js",
+  "author": "Research Hub Team",
+  "license": "MIT",
+  "homepage": ".",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anubhavaanand/research-hub.git"
+  },
+  "keywords": ["academic", "research", "papers", "citations", "document-management", "apa", "ieee", "bibliography"],
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "scripts": {
+    "start": "npm run serve",
+    "serve": "npx serve . -p 3000",
+    "build": "npm run validate && npm run minify",
+    "validate": "npm run validate-html && npm run validate-css && npm run validate-js",
+    "validate-html": "npx html-validate index.html",
+    "validate-css": "npx stylelint css/styles.css",
+    "validate-js": "npx eslint js/*.js",
+    "minify": "npm run minify-css && npm run minify-js",
+    "minify-css": "npx clean-css-cli css/styles.css -o css/styles.min.css",
+    "minify-js": "npx terser js/*.js -o js/bundle.min.js",
+    "electron": "electron .",
+    "dev": "node ./scripts/dev-start.js",
+    "start:electron": "cross-env NODE_ENV=production electron .",
+    "electron-pack": "electron-builder",
+    "dist": "npm run build && npm run electron-pack",
+    "test": "npm run validate",
+    "lint": "npm run validate-js",
+    "format": "npx prettier --write ."
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.2",
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.4",
+    "eslint": "^8.49.0",
+    "html-validate": "^8.5.0",
+    "prettier": "^3.0.3",
+    "serve": "^14.2.1",
+    "stylelint": "^15.10.3",
+    "terser": "^5.19.4"
+    ,"cross-env": "^7.0.3"
+  },
+  "dependencies": {},
+  "build": {
+    "appId": "com.research.dashboard",
+    "productName": "Research Hub",
+    "directories": {
+      "output": "dist"
+    },
+    "files": ["index.html", "css/**/*", "js/**/*", "assets/**/*", "package.json"],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "electronMain": "electron-main.js",
+  "browserslist": ["> 1%", "last 2 versions", "not dead", "not ie <= 11"]
+}
