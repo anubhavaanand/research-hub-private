@@ -2,29 +2,24 @@
   "name": "research-hub",
   "version": "2.0.0",
   "description": "A comprehensive academic research papers management system with AI-powered citation generation",
-  "main": "electron-main.js",
   "type": "module",
-  "author": "Research Hub Team / Anubhav Anand",
+  "author": "Anubhav Anand",
   "license": "MIT",
-  "homepage": ".",
+  "homepage": "https://anubhavaanand.github.io/research-hub-private/",
   "repository": {
     "type": "git",
     "url": "https://github.com/anubhavaanand/research-hub-private.git"
   },
-  "keywords": ["academic", "research", "papers", "citations", "ai", "gemini", "react", "typescript"],
+  "keywords": ["academic", "research", "papers", "citations", "ai", "gemini", "react", "typescript", "vite"],
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "serve": "npx serve dist -p 3000",
-    "electron": "electron .",
-    "start:electron": "cross-env NODE_ENV=production electron .",
-    "electron-pack": "electron-builder",
-    "dist": "npm run build && npm run electron-pack",
     "lint": "eslint .",
     "format": "npx prettier --write ."
   },
