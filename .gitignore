@@ -48,3 +48,4 @@ out/
 !SETUP.md
 !LICENSE.md
 !PROJECT_SUMMARY.md
+node_modules/
