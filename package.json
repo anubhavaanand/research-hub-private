@@ -1,0 +1,62 @@
+{
+  "name": "research-hub",
+  "version": "2.0.0",
+  "description": "A comprehensive academic research papers management system with AI-powered citation generation",
+  "type": "module",
+  "author": "Anubhav Anand",
+  "license": "MIT",
+  "homepage": "https://anubhavaanand.github.io/research-hub-private/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anubhavaanand/research-hub-private.git"
+  },
+  "keywords": ["academic", "research", "papers", "citations", "ai", "gemini", "react", "typescript", "vite"],
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "npx serve dist -p 3000",
+    "lint": "eslint .",
+    "format": "npx prettier --write ."
+  },
+  "dependencies": {
+    "@google/genai": "^0.7.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.4",
+    "eslint": "^8.49.0",
+    "prettier": "^3.0.3",
+    "cross-env": "^7.0.3"
+  },
+  "build": {
+    "appId": "com.research.hub",
+    "productName": "Research Hub",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": ["dist/**/*", "electron-main.js", "package.json"],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  }
+}
