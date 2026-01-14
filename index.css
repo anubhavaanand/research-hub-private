@@ -704,3 +704,601 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* === View Tabs === */
+.view-tabs {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.view-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.view-tab:hover {
+    color: var(--text-secondary);
+    background: rgba(255,255,255,0.03);
+}
+
+.view-tab.active {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary);
+}
+
+.view-tab svg { width: 14px; height: 14px; }
+
+.badge-alert {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: var(--danger);
+    color: white;
+    font-size: 0.6rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* === Project Manager === */
+.project-manager, .deadline-tracker, .collaborator-manager {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.project-header, .deadline-header, .collab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-header h3, .deadline-header h3, .collab-header h3 {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.project-header h3 svg, .deadline-header h3 svg, .collab-header h3 svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+}
+
+.add-btn-small {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.add-btn-small:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-primary);
+}
+
+.add-btn-small svg { width: 12px; height: 12px; }
+
+.project-list, .deadline-list, .collab-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.project-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.project-item:hover { background: var(--glass-light); }
+.project-item.active { background: var(--glass-light); box-shadow: inset 0 0 0 1px var(--border-glass); }
+
+.project-color {
+    width: 4px;
+    height: 28px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.project-info { flex: 1; min-width: 0; }
+
+.project-name {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.project-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.project-count {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.project-progress-bar {
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 1px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.project-progress-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.3s;
+}
+
+.project-actions, .collab-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.project-item:hover .project-actions,
+.collab-item:hover .collab-actions { opacity: 1; }
+
+.icon-btn-small {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.icon-btn-small:hover { color: var(--text-primary); background: rgba(255,255,255,0.1); }
+.icon-btn-small.danger:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+/* Project Form */
+.project-form, .deadline-form, .collab-form {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.glass-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+}
+
+.color-picker {
+    display: flex;
+    gap: 4px;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.selected { border-color: white; box-shadow: 0 0 8px rgba(255,255,255,0.3); }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover { background: #2563eb; }
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-glass);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+
+/* Status badges for projects */
+.status-badge.status-planning { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+.status-badge.status-writing { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.status-badge.status-review { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.status-badge.status-submitted { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+.status-badge.status-published { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.status-badge.status-archived { background: rgba(107, 114, 128, 0.15); color: #9ca3af; }
+
+/* === Deadline Tracker === */
+.deadline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-glass);
+    transition: all 0.2s;
+}
+
+.deadline-item.completed {
+    opacity: 0.5;
+}
+
+.deadline-item.completed .deadline-title {
+    text-decoration: line-through;
+}
+
+.check-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--border-glass-hover);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.check-btn:hover { border-color: var(--accent); }
+.check-btn.checked { background: var(--success); border-color: var(--success); color: white; }
+.check-btn svg { width: 10px; height: 10px; }
+
+.deadline-content { flex: 1; min-width: 0; }
+
+.deadline-title {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.deadline-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.deadline-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.deadline-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.deadline-date svg { width: 10px; height: 10px; }
+
+.days-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.days-badge.low, .urgency-low { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+.days-badge.medium, .urgency-medium { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+.days-badge.high, .urgency-high { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.days-badge.critical, .urgency-critical { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+.days-badge.overdue, .urgency-overdue { background: var(--danger); color: white; }
+
+.delete-btn-small {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.deadline-item:hover .delete-btn-small { opacity: 1; }
+.delete-btn-small:hover { color: var(--danger); }
+.delete-btn-small svg { width: 14px; height: 14px; }
+
+/* === Collaborator Manager === */
+.collab-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.collab-item:hover { background: var(--glass-light); }
+
+.collab-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+
+.collab-info { flex: 1; min-width: 0; }
+
+.collab-name {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.collab-role {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--accent);
+}
+
+.collab-affiliation {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.collab-email {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+.collab-email:hover { color: var(--accent); text-decoration: underline; }
+
+/* === Enhanced Empty State === */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 40px;
+}
+
+.empty-state svg {
+    width: 48px;
+    height: 48px;
+    opacity: 0.3;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px 0;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.empty-state p {
+    margin: 0 0 24px 0;
+    font-size: 0.9rem;
+}
+
+.empty-state-small {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* === Export Buttons === */
+.export-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.export-btn {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.export-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-primary);
+}
+
+.export-btn svg { width: 12px; height: 12px; }
+
+/* === Upcoming Deadlines Widget === */
+.upcoming-deadlines-widget {
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.widget-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.widget-label svg { width: 12px; height: 12px; }
+
+.mini-deadline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.mini-deadline:last-child { border-bottom: none; }
+
+.mini-deadline span:first-child {
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+}
+
+.mini-date {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+/* === Enhanced Doc Card === */
+.doc-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.project-badge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: white;
+    white-space: nowrap;
+}
+
+.footer-left {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.deadline-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.deadline-badge svg { width: 10px; height: 10px; }
+
+.deadline-badge.low { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+.deadline-badge.medium { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+.deadline-badge.high { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+.deadline-badge.critical { background: rgba(239, 68, 68, 0.2); color: var(--danger); animation: pulse-danger 1s infinite; }
+.deadline-badge.overdue { background: var(--danger); color: white; }
+
+@keyframes pulse-danger {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* === Stats Card Enhancements === */
+.stats-card h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stats-card h4 svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
+}
+
+.stats-grid-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
