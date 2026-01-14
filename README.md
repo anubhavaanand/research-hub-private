@@ -1,45 +1,215 @@
 # Research Hub 📚
 
-A comprehensive academic research papers management system with citation generation capabilities. Available as both a **desktop app** (unlimited storage) and **web demo** (limited storage).
+A modern, AI-powered academic research papers management system with intelligent citation generation. Built with React, TypeScript, and Google Gemini AI.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![GitHub release](https://img.shields.io/badge/release-v1.0.0-brightgreen)](https://github.com/anubhavaanand/research-hub/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-brightgreen)]()
+[![React](https://img.shields.io/badge/React-19.0-blue)]()
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)]()
 [![Status](https://img.shields.io/badge/status-Production%20Ready-success)]()
+
+---
+
+## ✨ Features
+
+### 🤖 AI-Powered Citation Generation
+- **Google Gemini Integration**: Intelligent citation generation using cutting-edge AI
+- **Multiple Formats**: APA 7th, IEEE, Harvard, MLA 9
+- **One-Click Generation**: Instantly create professional citations
+- **Copy to Clipboard**: Easy citation copying
+
+### 📚 Research Paper Management
+- **Smart Organization**: Organize papers by type, status, and tags
+- **Advanced Search**: Filter by authors, title, tags, and more
+- **Reading Status**: Track "To Read", "Reading", and "Read" papers
+- **Favorites System**: Star important papers for quick access
+
+### 🎨 Modern UI/UX
+- **Glass Morphism Design**: Beautiful, modern interface
+- **Animated Background**: Dotted glow effects
+- **Responsive Layout**: Works on desktop, tablet, and mobile
+- **Dark Theme**: Eye-friendly dark mode
+
+### 📊 Analytics & Insights
+- **Year Distribution**: Visualize papers by publication year
+- **Citation Tracking**: Track total citations across papers
+- **Status Overview**: See reading progress at a glance
+- **Smart Sorting**: Sort by date, year, or citations
 
 ---
 
 ## 🚀 Quick Start
 
-### 🌐 Try Web Demo (Limited)
+### 🌐 Live Demo
 
-**[Launch Web App →](https://anubhavaanand.github.io/research-hub/)**
+**[Launch Web App →](https://anubhavaanand.github.io/research-hub-private/)**
 
-⚠️ **Note**: Web version limited to ~10MB storage. For serious research work, use desktop app below.
+### � Run Locally
 
-### 🖥️ Desktop App (Recommended)
-
-**[Download Desktop App →](https://anubhavaanand.github.io/research-hub/downloads.html)**
-
-✅ **Unlimited storage**  
-✅ **Works offline**  
-✅ **Better performance**  
-✅ **Full features**  
-
-**Or run from source:**
 ```bash
-git clone https://github.com/anubhavaanand/research-hub.git
-cd research-hub
+# Clone repository
+git clone https://github.com/anubhavaanand/research-hub-private.git
+cd research-hub-private
+
+# Install dependencies
 npm install
-npm run start:electron
+
+# Set up API key (optional, for AI citations)
+cp .env.example .env
+# Edit .env and add your Google Gemini API key
+
+# Start development server
+npm run dev
+# Visit http://localhost:3000
+```
+
+### 📦 Build for Production
+
+```bash
+# Build optimized production bundle
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
 ---
 
-<!-- TODO: Add banner image
-![Research Hub](assets/banner.png)
--->
+## 🔧 Configuration
 
-## 🎓 **Academic-Focused Features**
+### Google Gemini API Key
+
+To enable AI-powered citation generation:
+
+1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Create a `.env` file in the project root
+3. Add your key: `API_KEY=your_api_key_here`
+
+---
+
+## 📚 Technology Stack
+
+- **Frontend**: React 19, TypeScript
+- **Build Tool**: Vite 6
+- **AI Integration**: Google Gemini AI (@google/genai)
+- **Styling**: CSS3 with Glass Morphism
+- **Icons**: Custom SVG components
+- **Fonts**: Inter, JetBrains Mono
+
+---
+
+## 🎯 Usage
+
+### Adding Papers
+
+1. Click the **"+"** button in the sidebar
+2. Upload a PDF or manually enter paper details
+3. Select paper type (Journal, Conference, etc.)
+4. Add authors, publication details, and tags
+5. Click **"Add Paper"**
+
+### Generating Citations
+
+1. Select a paper from your library
+2. Click the **"Generate Citation"** button in the details panel
+3. Choose your preferred citation style (APA, IEEE, Harvard, MLA)
+4. Click **"Generate"** to create citation using AI
+5. Copy to clipboard with one click
+
+### Organizing Papers
+
+- **Filter by Type**: Journal, Conference, Book, Thesis, or Other
+- **Filter by Status**: All, To Read, Reading, Read, Favorites
+- **Search**: Type in the search box to filter by title, authors, or tags
+- **Sort**: Choose from Date Added, Year, or Citations
+
+---
+
+## 🏗️ Project Structure
+
+```
+research-hub-private/
+├── components/              # React components
+│   ├── ArtifactCard.tsx    # Paper display card
+│   ├── CitationGenerator.tsx # AI citation generator
+│   ├── DottedGlowBackground.tsx # Animated background
+│   ├── Icons.tsx           # SVG icon components
+│   └── SideDrawer.tsx      # Side panel component
+├── dist/                   # Production build output
+├── index.html              # Entry HTML file
+├── index.tsx               # Main React application
+├── index.css               # Global styles
+├── types.ts                # TypeScript type definitions
+├── utils.ts                # Utility functions
+├── constants.ts            # Application constants
+├── vite.config.ts          # Vite configuration
+├── tsconfig.json           # TypeScript configuration
+└── package.json            # Dependencies and scripts
+```
+
+---
+
+## 📝 Available Scripts
+
+```bash
+npm run dev      # Start development server (port 3000)
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
+npm run format   # Format code with Prettier
+```
+
+---
+
+## 🌟 Key Features Explained
+
+### AI Citation Generation
+Uses Google's Gemini AI to generate accurate, properly formatted citations in multiple academic styles. Simply provide paper metadata and let AI handle the formatting.
+
+### Smart Paper Management
+Organize your research with a flexible system that tracks reading status, allows tagging, and supports favorites for quick access to important papers.
+
+### Modern Interface
+Glass morphism design with smooth animations creates a professional, eye-friendly research environment.
+
+### Responsive Design
+Works seamlessly across devices - from large desktop monitors to tablets and smartphones.
+
+---
+
+## 🔒 Privacy & Data
+
+- **Local Storage**: All paper data stored in browser localStorage
+- **No Server**: No backend server, completely client-side
+- **API Usage**: Google Gemini API only called when generating citations
+- **Your Control**: Complete control over your research data
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Google Gemini AI**: For intelligent citation generation
+- **React Team**: For the amazing React library
+- **Vite Team**: For the blazing-fast build tool
+- **Inter Font**: For beautiful typography
+
+---
+
+**Made with ❤️ for better academic research management**
+
+_Version 2.0.0 - Last updated: January 2026_
 
 ### 📚 **Academic Paper Management**
 
@@ -114,8 +284,8 @@ npm run start:electron
 1. Clone the repository:
 
   ```bash
-  git clone https://github.com/anubhavaanand/research-hub.git
-  cd research-hub
+  git clone https://github.com/anubhavaanand/research-hub-private.git
+  cd research-hub-private
   ```
 
 2. Start a local web server:

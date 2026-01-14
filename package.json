@@ -1,60 +1,56 @@
 {
   "name": "research-hub",
-  "version": "1.0.0",
-  "description": "A comprehensive academic research papers management system with citation generation capabilities",
+  "version": "2.0.0",
+  "description": "A comprehensive academic research papers management system with AI-powered citation generation",
   "main": "electron-main.js",
-  "author": "Research Hub Team",
+  "type": "module",
+  "author": "Research Hub Team / Anubhav Anand",
   "license": "MIT",
   "homepage": ".",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anubhavaanand/research-hub.git"
+    "url": "https://github.com/anubhavaanand/research-hub-private.git"
   },
-  "keywords": ["academic", "research", "papers", "citations", "document-management", "apa", "ieee", "bibliography"],
+  "keywords": ["academic", "research", "papers", "citations", "ai", "gemini", "react", "typescript"],
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=6.0.0"
   },
   "scripts": {
-    "start": "npm run serve",
-    "serve": "npx serve . -p 3000",
-    "build": "npm run validate && npm run minify",
-    "validate": "npm run validate-html && npm run validate-css && npm run validate-js",
-    "validate-html": "npx html-validate index.html",
-    "validate-css": "npx stylelint css/styles.css",
-    "validate-js": "npx eslint js/*.js",
-    "minify": "npm run minify-css && npm run minify-js",
-    "minify-css": "npx clean-css-cli css/styles.css -o css/styles.min.css",
-    "minify-js": "npx terser js/*.js -o js/bundle.min.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "npx serve dist -p 3000",
     "electron": "electron .",
-    "dev": "node ./scripts/dev-start.js",
     "start:electron": "cross-env NODE_ENV=production electron .",
     "electron-pack": "electron-builder",
     "dist": "npm run build && npm run electron-pack",
-    "test": "npm run validate",
-    "lint": "npm run validate-js",
+    "lint": "eslint .",
     "format": "npx prettier --write ."
   },
+  "dependencies": {
+    "@google/genai": "^0.7.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "devDependencies": {
-    "clean-css-cli": "^5.6.2",
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
     "electron": "^26.0.0",
     "electron-builder": "^24.6.4",
     "eslint": "^8.49.0",
-    "html-validate": "^8.5.0",
     "prettier": "^3.0.3",
-    "serve": "^14.2.1",
-    "stylelint": "^15.10.3",
-    "terser": "^5.19.4"
-    ,"cross-env": "^7.0.3"
+    "cross-env": "^7.0.3"
   },
-  "dependencies": {},
   "build": {
-    "appId": "com.research.dashboard",
+    "appId": "com.research.hub",
     "productName": "Research Hub",
     "directories": {
-      "output": "dist"
+      "output": "dist-electron"
     },
-    "files": ["index.html", "css/**/*", "js/**/*", "assets/**/*", "package.json"],
+    "files": ["dist/**/*", "electron-main.js", "package.json"],
     "win": {
       "target": "nsis",
       "icon": "assets/icon.ico"
@@ -66,14 +62,6 @@
     "linux": {
       "target": "AppImage",
       "icon": "assets/icon.png"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
     }
-  },
-  "electronMain": "electron-main.js",
-  "browserslist": ["> 1%", "last 2 versions", "not dead", "not ie <= 11"]
+  }
 }
