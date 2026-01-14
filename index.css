@@ -3030,35 +3030,106 @@ body {
     opacity: 1;
 }
 
+/* Notification Settings */
+.notification-settings {
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid var(--border-glass);
+}
+
+.setting-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    cursor: pointer;
+}
+
+.setting-row span:first-child {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.setting-row .setting-desc {
+    width: 100%;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.setting-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+.notification-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.notification-action-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 0.7rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.notification-action-btn:hover {
+    background: var(--accent-dim);
+}
+
+.no-notifications span {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+
 /* === View Toggle (List/Grid) === */
 .view-toggle {
     display: flex;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 6px;
-    padding: 2px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
 }
 
 .view-toggle-btn {
     background: transparent;
     border: none;
     color: var(--text-muted);
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 14px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
 .view-toggle-btn:hover {
     color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .view-toggle-btn.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 /* List View */

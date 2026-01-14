@@ -1056,7 +1056,9 @@ function App() {
 }
 
 const rootElement = document.getElementById('root');
-if (rootElement) {
+if (rootElement && !(rootElement as any).__reactRoot) {
     const root = ReactDOM.createRoot(rootElement);
+    (rootElement as any).__reactRoot = root;
     root.render(<React.StrictMode><App /></React.StrictMode>);
 }
+

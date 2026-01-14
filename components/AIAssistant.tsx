@@ -119,10 +119,12 @@ Be concise, helpful, and academic in tone. Use markdown formatting when appropri
     };
 
     const quickActions = [
-        { label: 'Summarize', prompt: 'Can you summarize the key points of this paper?' },
-        { label: 'Explain APA', prompt: 'How do I cite in APA 7th edition format?' },
-        { label: 'Methodology', prompt: 'What are best practices for research methodology?' },
-        { label: 'Writing Tips', prompt: 'Give me tips for academic writing.' }
+        { label: '📝 Summarize Paper', prompt: 'Can you summarize the key points of this paper?', desc: 'Get a concise summary' },
+        { label: '📚 APA Citation Help', prompt: 'How do I cite in APA 7th edition format? Give me examples.', desc: 'Citation formatting' },
+        { label: '🔬 Research Methods', prompt: 'What are best practices for research methodology in academic papers?', desc: 'Methodology tips' },
+        { label: '✍️ Writing Tips', prompt: 'Give me tips for academic writing style and structure.', desc: 'Improve your writing' },
+        { label: '🔍 Find Keywords', prompt: 'What are good keywords and search terms for literature review on this topic?', desc: 'Search optimization' },
+        { label: '📊 Data Analysis', prompt: 'What statistical methods should I consider for research data analysis?', desc: 'Analytics guidance' }
     ];
 
     if (!isOpen) return null;

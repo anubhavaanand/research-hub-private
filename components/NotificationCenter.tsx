@@ -33,7 +33,24 @@ export default function NotificationCenter({
     onClearAll
 }: NotificationCenterProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [quietMode, setQuietMode] = useState(false);
+    const [quietMode, setQuietMode] = useState(() => {
+        const saved = localStorage.getItem('notification_quiet_mode');
+        return saved === 'true';
+    });
+    const [soundEnabled, setSoundEnabled] = useState(() => {
+        const saved = localStorage.getItem('notification_sound');
+        return saved !== 'false'; // Default to enabled
+    });
+    const [showSettings, setShowSettings] = useState(false);
+
+    // Save settings to localStorage
+    useEffect(() => {
+        localStorage.setItem('notification_quiet_mode', quietMode.toString());
+    }, [quietMode]);
+
+    useEffect(() => {
+        localStorage.setItem('notification_sound', soundEnabled.toString());
+    }, [soundEnabled]);
 
     const unreadCount = notifications.filter(n => !n.isRead).length;
     const importantNotifications = notifications.filter(
@@ -62,11 +79,21 @@ export default function NotificationCenter({
         }
     };
 
+    const getActionLabel = (type: Notification['type']) => {
+        switch (type) {
+            case 'deadline': return 'View Deadline';
+            case 'warning': return 'View Issue';
+            case 'success': return 'View Details';
+            default: return 'View';
+        }
+    };
+
     return (
         <div className="notification-center">
             <button
                 className={`notification-bell ${unreadCount > 0 ? 'has-unread' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
+                title={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
             >
                 🔔
                 {unreadCount > 0 && (
@@ -80,11 +107,11 @@ export default function NotificationCenter({
                         <h4>Notifications</h4>
                         <div className="notification-actions">
                             <button
-                                className={`quiet-toggle ${quietMode ? 'active' : ''}`}
-                                onClick={() => setQuietMode(!quietMode)}
-                                title={quietMode ? 'Show all' : 'Quiet mode'}
+                                className="settings-toggle"
+                                onClick={() => setShowSettings(!showSettings)}
+                                title="Settings"
                             >
-                                {quietMode ? '🔕' : '🔔'}
+                                ⚙️
                             </button>
                             {unreadCount > 0 && (
                                 <button onClick={onMarkAllRead}>Mark all read</button>
@@ -95,7 +122,30 @@ export default function NotificationCenter({
                         </div>
                     </div>
 
-                    {quietMode && (
+                    {showSettings && (
+                        <div className="notification-settings">
+                            <label className="setting-row">
+                                <span>🔕 Quiet Mode</span>
+                                <span className="setting-desc">Only show critical notifications</span>
+                                <input
+                                    type="checkbox"
+                                    checked={quietMode}
+                                    onChange={() => setQuietMode(!quietMode)}
+                                />
+                            </label>
+                            <label className="setting-row">
+                                <span>🔊 Sound Alerts</span>
+                                <span className="setting-desc">Play sound for new notifications</span>
+                                <input
+                                    type="checkbox"
+                                    checked={soundEnabled}
+                                    onChange={() => setSoundEnabled(!soundEnabled)}
+                                />
+                            </label>
+                        </div>
+                    )}
+
+                    {quietMode && !showSettings && (
                         <div className="quiet-mode-notice">
                             🔕 Quiet mode: Only important notifications shown
                         </div>
@@ -104,7 +154,8 @@ export default function NotificationCenter({
                     <div className="notification-list">
                         {displayNotifications.length === 0 ? (
                             <div className="no-notifications">
-                                <p>No notifications</p>
+                                <p>🎉 All caught up!</p>
+                                <span>No new notifications</span>
                             </div>
                         ) : (
                             displayNotifications.map(notif => (
@@ -119,7 +170,14 @@ export default function NotificationCenter({
                                     <div className="notification-content">
                                         <span className="notification-title">{notif.title}</span>
                                         <span className="notification-message">{notif.message}</span>
-                                        <span className="notification-time">{getTimeAgo(notif.timestamp)}</span>
+                                        <div className="notification-footer">
+                                            <span className="notification-time">{getTimeAgo(notif.timestamp)}</span>
+                                            {notif.relatedId && (
+                                                <button className="notification-action-btn">
+                                                    {getActionLabel(notif.type)} →
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                     <button
                                         className="notification-dismiss"
