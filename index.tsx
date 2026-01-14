@@ -7,26 +7,51 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { Paper, PaperType, ReadingStatus } from './types';
-import { generateId, formatDate, MOCK_PAPERS } from './utils';
+import { generateId, formatDate } from './utils';
 import { 
     SearchIcon, FolderIcon, FileTextIcon, 
     PlusIcon, StarIcon, QuoteIcon, TrashIcon 
 } from './components/Icons';
 import CitationGenerator from './components/CitationGenerator';
 import DottedGlowBackground from './components/DottedGlowBackground';
+import WelcomeGuide from './components/WelcomeGuide';
 import { GoogleGenAI } from '@google/genai';
 
 function App() {
-    const [papers, setPapers] = useState<Paper[]>(MOCK_PAPERS);
+    const [papers, setPapers] = useState<Paper[]>([]);
     const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<'date' | 'year' | 'citations' | 'impact'>('date');
     const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
     const [toasts, setToasts] = useState<string[]>([]);
+    const [showWelcome, setShowWelcome] = useState(false);
     
     // File input ref
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Load papers from localStorage on mount
+    useEffect(() => {
+        const savedPapers = localStorage.getItem('researchPapers');
+        const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+        
+        if (savedPapers) {
+            setPapers(JSON.parse(savedPapers));
+        }
+        
+        // Show welcome guide only on first visit
+        if (!hasSeenWelcome) {
+            setShowWelcome(true);
+            localStorage.setItem('hasSeenWelcome', 'true');
+        }
+    }, []);
+
+    // Save papers to localStorage whenever they change
+    useEffect(() => {
+        if (papers.length > 0) {
+            localStorage.setItem('researchPapers', JSON.stringify(papers));
+        }
+    }, [papers]);
 
     // --- Derived Data & Stats ---
 
@@ -188,6 +213,9 @@ function App() {
                 ))}
             </div>
 
+            {/* Welcome Guide */}
+            {showWelcome && <WelcomeGuide onClose={() => setShowWelcome(false)} />}
+
             {/* Sidebar */}
             <aside className="sidebar">
                 <div className="brand">
@@ -195,6 +223,23 @@ function App() {
                         <div className="brand-dot"></div>
                     </div>
                     <span className="brand-text">Research Hub</span>
+                    <button
+                        onClick={() => setShowWelcome(true)}
+                        style={{
+                            marginLeft: 'auto',
+                            padding: '6px 12px',
+                            background: 'rgba(139, 92, 246, 0.2)',
+                            border: '1px solid rgba(139, 92, 246, 0.3)',
+                            borderRadius: '8px',
+                            color: '#a78bfa',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                        title="Show Welcome Guide"
+                    >
+                        ?
+                    </button>
                 </div>
 
                 <nav className="nav-container">

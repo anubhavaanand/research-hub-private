@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { Paper, CitationStyle } from '../types';
 import { SparklesIcon, CheckIcon } from './Icons';
+import { checkRateLimit, validateApiKey } from '../utils';
 
 interface CitationGeneratorProps {
     paper: Paper;
@@ -24,8 +25,24 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
         
         try {
             const apiKey = process.env.API_KEY || import.meta.env.VITE_API_KEY;
+            
+            // API Key validation
             if (!apiKey) {
                 setCitation("⚠️ API Key not configured. Please add your Google Gemini API key to .env file.\n\nGet your free key at: https://aistudio.google.com/app/apikey\n\nThen create a .env file with: API_KEY=your_key_here");
+                setIsLoading(false);
+                return;
+            }
+
+            // Validate API key format
+            if (!validateApiKey(apiKey)) {
+                setCitation("⚠️ Invalid API Key format. Please check your API key in .env file.\n\nMake sure it's a valid Google Gemini API key from: https://aistudio.google.com/app/apikey");
+                setIsLoading(false);
+                return;
+            }
+
+            // Rate limiting to prevent abuse (60 requests per minute)
+            if (!checkRateLimit(apiKey, 60, 60000)) {
+                setCitation("⚠️ Rate limit exceeded. Please wait a moment before generating another citation.\n\nLimit: 60 requests per minute for API protection.");
                 setIsLoading(false);
                 return;
             }
