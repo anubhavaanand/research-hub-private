@@ -21,9 +21,17 @@ import DottedGlowBackground from './components/DottedGlowBackground';
 import DeadlineTracker from './components/DeadlineTracker';
 import ProjectManager from './components/ProjectManager';
 import CollaboratorManager from './components/CollaboratorManager';
+import PDFViewer from './components/PDFViewer';
+import AIAssistant from './components/AIAssistant';
+import MarkdownNotes from './components/MarkdownNotes';
+import BibTeXImporter from './components/BibTeXImporter';
+import WorkflowTracker from './components/WorkflowTracker';
+import SmartPopup, { useSmartPopup } from './components/SmartPopup';
+import NotificationCenter, { Notification, createDeadlineNotification } from './components/NotificationCenter';
 import { GoogleGenAI } from '@google/genai';
 
 type ViewMode = 'papers' | 'deadlines' | 'collaborators';
+type ViewLayout = 'grid' | 'list';
 
 function App() {
     // Load initial state from localStorage
@@ -42,6 +50,19 @@ function App() {
     const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
     const [toasts, setToasts] = useState<string[]>([]);
     const [viewMode, setViewMode] = useState<ViewMode>('papers');
+    const [viewLayout, setViewLayout] = useState<ViewLayout>('grid');
+
+    // New feature states
+    const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+    const [isPDFViewerOpen, setIsPDFViewerOpen] = useState(false);
+    const [pdfViewerUrl, setPdfViewerUrl] = useState('');
+    const [pdfViewerName, setPdfViewerName] = useState('');
+    const [isBibTeXImporterOpen, setIsBibTeXImporterOpen] = useState(false);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [researchJourney, setResearchJourney] = useState<any>(null);
+
+    // Smart popup hook
+    const { popupPaper, popupPosition, showPopup, hidePopup } = useSmartPopup();
 
     // File input ref
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -254,6 +275,72 @@ function App() {
         addToast("Exported to BibTeX");
     };
 
+    // PDF Viewer handlers
+    const openPDFViewer = (url: string, name: string) => {
+        setPdfViewerUrl(url);
+        setPdfViewerName(name);
+        setIsPDFViewerOpen(true);
+    };
+
+    const closePDFViewer = () => {
+        setIsPDFViewerOpen(false);
+        setPdfViewerUrl('');
+        setPdfViewerName('');
+    };
+
+    // BibTeX import handler
+    const handleBibTeXImport = (entries: any[]) => {
+        const newPapers: Paper[] = entries.map(entry => ({
+            id: generateId(),
+            title: entry.title || 'Untitled',
+            authors: entry.author ? entry.author.split(' and ').map((a: string) => a.trim()) : ['Unknown'],
+            type: entry.type === 'article' ? 'journal' : entry.type === 'inproceedings' ? 'conference' : 'other',
+            publication: entry.journal || entry.booktitle || 'Unknown',
+            year: parseInt(entry.year) || new Date().getFullYear(),
+            addedAt: Date.now(),
+            isFavorite: false,
+            status: 'toread',
+            tags: [],
+            citationCount: 0,
+            doi: entry.doi,
+            url: entry.url,
+            abstract: entry.abstract,
+            volume: entry.volume,
+            issue: entry.number,
+            pages: entry.pages
+        }));
+
+        setPapers(prev => [...newPapers, ...prev]);
+        addToast(`Imported ${newPapers.length} papers from BibTeX`);
+    };
+
+    // Notification handlers
+    const markNotificationRead = (id: string) => {
+        setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+    };
+
+    const markAllNotificationsRead = () => {
+        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    };
+
+    const dismissNotification = (id: string) => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+    };
+
+    const clearAllNotifications = () => {
+        setNotifications([]);
+    };
+
+    // Research journey handlers
+    const createJourney = (journey: any) => {
+        setResearchJourney(journey);
+        addToast("Research journey started!");
+    };
+
+    const updateJourney = (journey: any) => {
+        setResearchJourney(journey);
+    };
+
     const summarizeAbstract = async () => {
         if (!selectedPaper || !selectedPaper.abstract) return;
         try {
@@ -279,6 +366,44 @@ function App() {
 
     return (
         <div className="app-container">
+            {/* PDF Viewer Modal */}
+            {isPDFViewerOpen && pdfViewerUrl && (
+                <PDFViewer
+                    fileUrl={pdfViewerUrl}
+                    fileName={pdfViewerName}
+                    onClose={closePDFViewer}
+                />
+            )}
+
+            {/* AI Assistant */}
+            <AIAssistant
+                isOpen={isAIAssistantOpen}
+                onClose={() => setIsAIAssistantOpen(false)}
+                context={selectedPaper?.abstract}
+            />
+
+            {/* BibTeX Importer */}
+            {isBibTeXImporterOpen && (
+                <BibTeXImporter
+                    onImport={handleBibTeXImport}
+                    onClose={() => setIsBibTeXImporterOpen(false)}
+                />
+            )}
+
+            {/* Smart Popup */}
+            {popupPaper && (
+                <SmartPopup
+                    paper={popupPaper}
+                    position={popupPosition}
+                    onClose={hidePopup}
+                    onOpenPaper={(id) => {
+                        setSelectedPaperId(id);
+                        setIsRightPanelOpen(true);
+                        hidePopup();
+                    }}
+                />
+            )}
+
             {/* Background Animation */}
             <div className="ambient-background">
                 <DottedGlowBackground
@@ -474,6 +599,26 @@ function App() {
                     </div>
 
                     <div className="actions">
+                        {/* View Toggle */}
+                        <div className="view-toggle">
+                            <button
+                                className={`view-toggle-btn ${viewLayout === 'grid' ? 'active' : ''}`}
+                                onClick={() => setViewLayout('grid')}
+                                title="Grid View"
+                            >
+                                ⊞
+                            </button>
+                            <button
+                                className={`view-toggle-btn ${viewLayout === 'list' ? 'active' : ''}`}
+                                onClick={() => setViewLayout('list')}
+                                title="List View"
+                            >
+                                ☰
+                            </button>
+                        </div>
+
+                        <div className="divider-vertical"></div>
+
                         <div className="sort-dropdown">
                             <span className="sort-label">Sort by:</span>
                             <select
@@ -487,6 +632,35 @@ function App() {
                                 <option value="deadline">Deadline</option>
                             </select>
                         </div>
+
+                        <div className="divider-vertical"></div>
+
+                        {/* AI Assistant Button */}
+                        <button
+                            className="icon-btn"
+                            onClick={() => setIsAIAssistantOpen(true)}
+                            title="AI Research Assistant"
+                        >
+                            ✨
+                        </button>
+
+                        {/* Import Button */}
+                        <button
+                            className="icon-btn"
+                            onClick={() => setIsBibTeXImporterOpen(true)}
+                            title="Import BibTeX"
+                        >
+                            <DownloadIcon />
+                        </button>
+
+                        {/* Notifications */}
+                        <NotificationCenter
+                            notifications={notifications}
+                            onMarkRead={markNotificationRead}
+                            onMarkAllRead={markAllNotificationsRead}
+                            onDismiss={dismissNotification}
+                            onClearAll={clearAllNotifications}
+                        />
 
                         <div className="divider-vertical"></div>
 
@@ -508,12 +682,17 @@ function App() {
                         <div className="empty-state">
                             <FileTextIcon />
                             <h3>No papers found</h3>
-                            <p>Upload a paper or adjust your filters</p>
-                            <button className="add-btn" onClick={() => fileInputRef.current?.click()}>
-                                <PlusIcon /> Add Your First Paper
-                            </button>
+                            <p>Upload a paper or import from BibTeX</p>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button className="add-btn" onClick={() => fileInputRef.current?.click()}>
+                                    <PlusIcon /> Upload Paper
+                                </button>
+                                <button className="btn-secondary" onClick={() => setIsBibTeXImporterOpen(true)}>
+                                    <DownloadIcon /> Import BibTeX
+                                </button>
+                            </div>
                         </div>
-                    ) : (
+                    ) : viewLayout === 'grid' ? (
                         <div className="doc-grid">
                             {filteredPapers.map((paper, index) => {
                                 const project = projects.find(p => p.id === paper.projectId);
@@ -528,6 +707,8 @@ function App() {
                                             setSelectedPaperId(paper.id);
                                             setIsRightPanelOpen(true);
                                         }}
+                                        onMouseEnter={(e) => showPopup(paper, e)}
+                                        onMouseLeave={hidePopup}
                                         style={{ animationDelay: `${index * 50}ms` }}
                                     >
                                         <div className="doc-card-inner">
@@ -584,6 +765,47 @@ function App() {
                                             </div>
                                         </div>
                                         <div className="doc-glow"></div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        /* List View */
+                        <div className="doc-list">
+                            {filteredPapers.map((paper) => {
+                                const project = projects.find(p => p.id === paper.projectId);
+
+                                return (
+                                    <div
+                                        key={paper.id}
+                                        className={`doc-list-item ${selectedPaperId === paper.id ? 'selected' : ''}`}
+                                        onClick={() => {
+                                            setSelectedPaperId(paper.id);
+                                            setIsRightPanelOpen(true);
+                                        }}
+                                        onMouseEnter={(e) => showPopup(paper, e)}
+                                        onMouseLeave={hidePopup}
+                                    >
+                                        <div className="status-badge" data-status={paper.status}>
+                                            {paper.status === 'toread' ? 'To Read' : paper.status}
+                                        </div>
+                                        <h3 className="doc-title">{paper.title}</h3>
+                                        <span className="doc-authors">{paper.authors.slice(0, 2).join(', ')}</span>
+                                        <span className="doc-year">{paper.year}</span>
+                                        {project && (
+                                            <div
+                                                className="project-badge"
+                                                style={{ backgroundColor: project.color }}
+                                            >
+                                                {project.name}
+                                            </div>
+                                        )}
+                                        <button
+                                            className={`fav-btn ${paper.isFavorite ? 'active' : ''}`}
+                                            onClick={(e) => toggleFavorite(paper.id, e)}
+                                        >
+                                            <StarIcon filled={paper.isFavorite} />
+                                        </button>
                                     </div>
                                 );
                             })}
@@ -798,7 +1020,17 @@ function App() {
 
                             {selectedPaper.fileUrl && (
                                 <div className="panel-section">
-                                    <h3>Preview</h3>
+                                    <div className="section-header">
+                                        <h3>Preview</h3>
+                                        {selectedPaper.fileName?.endsWith('.pdf') && (
+                                            <button
+                                                className="ai-action-btn"
+                                                onClick={() => openPDFViewer(selectedPaper.fileUrl!, selectedPaper.fileName || 'Document')}
+                                            >
+                                                🔍 Full View
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="preview-area">
                                         {selectedPaper.fileName?.endsWith('.pdf') ? (
                                             <iframe src={selectedPaper.fileUrl} className="preview-iframe" title="preview" />
