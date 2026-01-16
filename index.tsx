@@ -28,6 +28,7 @@ import BibTeXImporter from './components/BibTeXImporter';
 import WorkflowTracker from './components/WorkflowTracker';
 import SmartPopup, { useSmartPopup } from './components/SmartPopup';
 import NotificationCenter, { Notification, createDeadlineNotification } from './components/NotificationCenter';
+import CitationGraph from './components/CitationGraph';
 import { GoogleGenAI } from '@google/genai';
 
 type ViewMode = 'papers' | 'deadlines' | 'collaborators';
@@ -76,9 +77,12 @@ function App() {
 
     const filteredPapers = useMemo(() => {
         let result = papers.filter(p => {
-            const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                p.authors.some(a => a.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                p.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+            const query = searchQuery.toLowerCase();
+            const matchesSearch = p.title.toLowerCase().includes(query) ||
+                p.authors.some(a => a.toLowerCase().includes(query)) ||
+                p.tags.some(t => t.toLowerCase().includes(query)) ||
+                (p.publication && p.publication.toLowerCase().includes(query)) ||
+                (p.abstract && p.abstract.toLowerCase().includes(query));
 
             const matchesFilter = activeFilter === 'all' ? true :
                 activeFilter === 'favorites' ? p.isFavorite :
@@ -142,13 +146,14 @@ function App() {
         setTimeout(() => setToasts(prev => prev.slice(1)), 3000);
     }, []);
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
+        // Create initial paper with basic info
         const newPaper: Paper = {
             id: generateId(),
-            title: file.name.replace(/\.[^/.]+$/, ""), // remove extension
+            title: file.name.replace(/\.[^/.]+$/, ""),
             authors: ["Unknown Author"],
             type: 'other',
             publication: "Unpublished",
@@ -163,10 +168,44 @@ function App() {
             projectId: selectedProjectId || undefined
         };
 
+        // Add paper immediately with loading state
         setPapers(prev => [newPaper, ...prev]);
         setSelectedPaperId(newPaper.id);
         setIsRightPanelOpen(true);
-        addToast("File uploaded successfully");
+        addToast("Uploading file and extracting metadata...");
+
+        // Try to extract metadata from PDF
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+            try {
+                const { extractPDFMetadata } = await import('./utils/pdfMetadata');
+                const metadata = await extractPDFMetadata(file);
+
+                if (metadata) {
+                    // Update paper with extracted metadata
+                    updatePaper(newPaper.id, {
+                        title: metadata.title || newPaper.title,
+                        authors: metadata.authors.length > 0 ? metadata.authors : newPaper.authors,
+                        year: metadata.year || newPaper.year,
+                        abstract: metadata.abstract,
+                        publication: metadata.journal || newPaper.publication,
+                        volume: metadata.volume,
+                        issue: metadata.issue,
+                        pages: metadata.pages,
+                        doi: metadata.doi,
+                        tags: metadata.keywords || [],
+                        type: metadata.journal ? 'journal' : 'other'
+                    });
+                    addToast("📄 Metadata extracted successfully!");
+                } else {
+                    addToast("File uploaded (metadata extraction unavailable)");
+                }
+            } catch (error) {
+                console.error('Metadata extraction failed:', error);
+                addToast("File uploaded successfully");
+            }
+        } else {
+            addToast("File uploaded successfully");
+        }
     };
 
     const handleDelete = (id: string, e: React.MouseEvent) => {
@@ -581,6 +620,15 @@ function App() {
                                 <DownloadIcon /> BibTeX
                             </button>
                         </div>
+
+                        {/* Citation Network Graph */}
+                        {papers.length > 0 && (
+                            <CitationGraph
+                                papers={papers}
+                                selectedPaperId={selectedPaperId}
+                                onSelectPaper={(id) => setSelectedPaperId(id)}
+                            />
+                        )}
                     </div>
                 )}
             </aside>

@@ -4,7 +4,7 @@
 */
 
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Paper, CitationStyle } from '../types';
 import { SparklesIcon, CheckIcon } from './Icons';
 
@@ -21,41 +21,51 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
     const generateCitation = async () => {
         setIsLoading(true);
         setCitation('');
-        
+
         try {
+            // Import rate limiter
+            const { canMakeRequest, recordRequest, getCachedResponse, cacheResponse, createCacheKey, getUsageStats } =
+                await import('../utils/apiRateLimiter');
+
+            // Check rate limits
+            const rateCheck = canMakeRequest();
+            if (!rateCheck.allowed) {
+                const stats = getUsageStats();
+                setCitation(`⏳ ${rateCheck.reason} (${stats.used}/${stats.limit} used today)`);
+                return;
+            }
+
+            // Check cache first
+            const cacheKey = createCacheKey(paper.title, paper.authors.join(','), style);
+            const cached = getCachedResponse(cacheKey);
+            if (cached) {
+                setCitation(cached);
+                return;
+            }
+
             const apiKey = process.env.API_KEY;
             if (!apiKey) {
                 setCitation("Error: API Key missing.");
                 return;
             }
 
-            const ai = new GoogleGenAI({ apiKey });
-            
-            // Construct a prompt that asks for a raw string
-            const prompt = `
-                Generate a bibliographic citation for the following academic paper in **${style}** format.
-                Return ONLY the raw citation string. No markdown formatting.
-                
-                Metadata:
-                Title: ${paper.title}
-                Authors: ${paper.authors.join(', ')}
-                Publication (Journal/Conf): ${paper.publication}
-                Year: ${paper.year}
-                Volume: ${paper.volume || 'N/A'}
-                Issue: ${paper.issue || 'N/A'}
-                Pages: ${paper.pages || 'N/A'}
-            `;
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' }, { apiVersion: 'v1' });
 
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-flash-preview',
-                contents: { role: 'user', parts: [{ text: prompt }] }
-            });
+            const prompt = `Generate ${style} citation for: "${paper.title}" by ${paper.authors.slice(0, 3).join(', ')} (${paper.year}). Return ONLY the citation.`;
 
-            const text = response.text || '';
-            setCitation(text.trim());
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = (response.text() || '').trim();
+
+            // Record request and cache response
+            recordRequest();
+            cacheResponse(cacheKey, text);
+
+            setCitation(text);
         } catch (e) {
             console.error(e);
-            setCitation("Failed to generate citation. Check network/API.");
+            setCitation("Failed to generate citation.");
         } finally {
             setIsLoading(false);
         }
@@ -72,15 +82,15 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ position: 'relative' }}>
-                    <select 
-                        value={style} 
+                    <select
+                        value={style}
                         onChange={(e) => setStyle(e.target.value as CitationStyle)}
-                        style={{ 
-                            background: 'rgba(255,255,255,0.05)', 
-                            color: 'var(--text-primary)', 
-                            border: '1px solid var(--border-glass)', 
-                            padding: '6px 12px', 
-                            borderRadius: '8px', 
+                        style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            color: 'var(--text-primary)',
+                            border: '1px solid var(--border-glass)',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
                             fontSize: '0.8rem',
                             cursor: 'pointer',
                             outline: 'none',
@@ -95,12 +105,12 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
                     </select>
                     <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontSize: '0.6rem', color: 'var(--text-muted)' }}>▼</div>
                 </div>
-                
-                <button 
-                    onClick={generateCitation} 
+
+                <button
+                    onClick={generateCitation}
                     disabled={isLoading}
                     className="ai-action-btn"
-                    style={{ 
+                    style={{
                         opacity: isLoading ? 0.7 : 1,
                         background: isLoading ? 'var(--glass-light)' : 'transparent'
                     }}
@@ -109,7 +119,7 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
                 </button>
             </div>
 
-            <div 
+            <div
                 onClick={citation ? handleCopy : undefined}
                 style={{
                     background: 'rgba(0,0,0,0.3)',
@@ -126,20 +136,20 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
             >
                 {citation ? (
                     <>
-                        <p style={{ 
-                            margin: 0, 
-                            fontFamily: 'var(--font-mono)', 
-                            fontSize: '0.85rem', 
+                        <p style={{
+                            margin: 0,
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '0.85rem',
                             lineHeight: '1.5',
                             color: 'var(--text-secondary)',
                             width: '100%'
                         }}>
                             {citation}
                         </p>
-                        <div style={{ 
-                            position: 'absolute', 
-                            top: '8px', 
-                            right: '8px', 
+                        <div style={{
+                            position: 'absolute',
+                            top: '8px',
+                            right: '8px',
                             color: copied ? 'var(--success)' : 'transparent',
                             transition: 'color 0.2s'
                         }}>

@@ -86,6 +86,7 @@ export default function DeadlineTracker({ deadlines, onAdd, onUpdate, onDelete }
                             className="glass-input"
                             value={newDate}
                             onChange={e => setNewDate(e.target.value)}
+                            onInput={e => setNewDate((e.target as HTMLInputElement).value)}
                         />
                         <select
                             className="glass-input"
@@ -100,7 +101,13 @@ export default function DeadlineTracker({ deadlines, onAdd, onUpdate, onDelete }
                     </div>
                     <div className="form-actions">
                         <button className="btn-secondary" onClick={() => setIsAdding(false)}>Cancel</button>
-                        <button className="btn-primary" onClick={handleAdd}>Add Deadline</button>
+                        <button
+                            className="btn-primary"
+                            onClick={handleAdd}
+                            disabled={!newTitle.trim() || !newDate}
+                        >
+                            Add Deadline
+                        </button>
                     </div>
                 </div>
             )}

@@ -31,7 +31,9 @@ interface BibTeXImporterProps {
 // Parse BibTeX file content
 const parseBibTeX = (content: string): BibTeXEntry[] => {
     const entries: BibTeXEntry[] = [];
-    const entryRegex = /@(\w+)\s*{\s*([^,]+)\s*,([^}]+)}/gm;
+
+    // Match @type{key, ... }
+    const entryRegex = /@(\w+)\s*\{\s*([^,]+)\s*,\s*([\s\S]*?)\n\s*\}/gm;
 
     let match;
     while ((match = entryRegex.exec(content)) !== null) {
@@ -41,15 +43,32 @@ const parseBibTeX = (content: string): BibTeXEntry[] => {
 
         const entry: BibTeXEntry = { type, key };
 
-        // Parse fields
-        const fieldRegex = /(\w+)\s*=\s*[{"']?([^,}]+?)[}"']?\s*(?:,|$)/gm;
-        let fieldMatch;
-        while ((fieldMatch = fieldRegex.exec(fieldsStr)) !== null) {
-            const fieldName = fieldMatch[1].toLowerCase();
-            let fieldValue = fieldMatch[2].trim();
-            // Remove surrounding braces or quotes
-            fieldValue = fieldValue.replace(/^[{"']|[}"']$/g, '').trim();
-            entry[fieldName] = fieldValue;
+        // Parse each field - handles {value} and "value" and plain values
+        // This regex captures: fieldName = {value with spaces} or "value" or plain_value
+        const lines = fieldsStr.split('\n');
+
+        for (const line of lines) {
+            // Match field = value pattern
+            const fieldMatch = line.match(/^\s*(\w+)\s*=\s*(.+?)\s*,?\s*$/);
+            if (fieldMatch) {
+                const fieldName = fieldMatch[1].toLowerCase();
+                let fieldValue = fieldMatch[2].trim();
+
+                // Remove surrounding braces {value}
+                if (fieldValue.startsWith('{') && fieldValue.endsWith('}')) {
+                    fieldValue = fieldValue.slice(1, -1);
+                }
+                // Remove surrounding quotes "value"
+                else if (fieldValue.startsWith('"') && fieldValue.endsWith('"')) {
+                    fieldValue = fieldValue.slice(1, -1);
+                }
+                // Remove trailing comma and braces
+                fieldValue = fieldValue.replace(/[,}]+$/, '').trim();
+
+                if (fieldValue) {
+                    entry[fieldName] = fieldValue;
+                }
+            }
         }
 
         entries.push(entry);

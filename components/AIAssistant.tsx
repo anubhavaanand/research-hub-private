@@ -4,7 +4,7 @@
 */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SparklesIcon, SearchIcon } from './Icons';
 
 interface Message {
@@ -51,15 +51,56 @@ export default function AIAssistant({ isOpen, onClose, context }: AIAssistantPro
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
+        // Import rate limiter
+        const { canMakeRequest, recordRequest, getCachedResponse, cacheResponse, createCacheKey, getUsageStats } =
+            await import('../utils/apiRateLimiter');
+
+        // Check rate limits first
+        const rateCheck = canMakeRequest();
+        if (!rateCheck.allowed) {
+            const usageStats = getUsageStats();
+            const errorMessage: Message = {
+                id: Date.now().toString(),
+                role: 'assistant',
+                content: `⏳ ${rateCheck.reason}\n\n📊 Today's usage: ${usageStats.used}/${usageStats.limit} requests`,
+                timestamp: Date.now()
+            };
+            setMessages(prev => [...prev, errorMessage]);
+            return;
+        }
+
+        // Sanitize input to prevent prompt injection
+        const sanitizedInput = input.trim()
+            .slice(0, 1000) // Limit input length
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove scripts
+            .replace(/\{\{.*?\}\}/g, '') // Remove template injections
+            .replace(/\$\{.*?\}/g, ''); // Remove JS template literals
+
         const userMessage: Message = {
             id: Date.now().toString(),
             role: 'user',
-            content: input.trim(),
+            content: sanitizedInput,
             timestamp: Date.now()
         };
 
         setMessages(prev => [...prev, userMessage]);
         setInput('');
+
+        // Check cache for similar questions
+        const cacheKey = createCacheKey(sanitizedInput, context || '');
+        const cachedResponse = getCachedResponse(cacheKey);
+
+        if (cachedResponse) {
+            const assistantMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                role: 'assistant',
+                content: cachedResponse + '\n\n_💾 (cached)_',
+                timestamp: Date.now()
+            };
+            setMessages(prev => [...prev, assistantMessage]);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -68,31 +109,28 @@ export default function AIAssistant({ isOpen, onClose, context }: AIAssistantPro
                 throw new Error('API key not configured');
             }
 
-            const ai = new GoogleGenAI({ apiKey });
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel(
+                { model: 'gemini-2.5-flash' },
+                { apiVersion: 'v1' }
+            );
 
-            const systemPrompt = `You are a helpful AI research assistant for academics. You help with:
-- Summarizing and explaining research papers
-- Citation styles (APA, MLA, Chicago, IEEE, Harvard)
-- Research methodology and best practices
-- Academic writing tips
-- Finding research directions
+            const prompt = `You are a concise AI research assistant. Give brief, helpful answers about academic research, citations, and papers.${context ? ` Context: "${context.slice(0, 200)}"` : ''}\n\nQ: ${sanitizedInput}`;
 
-${context ? `Current context: The user is viewing a paper with the following abstract: "${context}"` : ''}
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const responseText = response.text() || 'I apologize, but I couldn\'t generate a response.';
 
-Be concise, helpful, and academic in tone. Use markdown formatting when appropriate.`;
+            // Record successful request for rate limiting
+            recordRequest();
 
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.0-flash',
-                contents: {
-                    role: 'user',
-                    parts: [{ text: `${systemPrompt}\n\nUser question: ${userMessage.content}` }]
-                }
-            });
+            // Cache the response
+            cacheResponse(cacheKey, responseText);
 
             const assistantMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: response.text || 'I apologize, but I couldn\'t generate a response. Please try again.',
+                content: responseText,
                 timestamp: Date.now()
             };
 
@@ -102,7 +140,7 @@ Be concise, helpful, and academic in tone. Use markdown formatting when appropri
             const errorMessage: Message = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: '❌ Sorry, I encountered an error. Please check your API key configuration or try again later.',
+                content: '❌ Error: Please check your API key or try again later.',
                 timestamp: Date.now()
             };
             setMessages(prev => [...prev, errorMessage]);
