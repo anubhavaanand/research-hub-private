@@ -29,7 +29,7 @@ export interface Paper {
   personalNotes?: string;
 }
 
-export type CitationStyle = 'APA7' | 'IEEE' | 'Harvard';
+export type CitationStyle = 'APA7' | 'IEEE' | 'Harvard' | 'MLA';
 
 export interface GeneratedCitation {
   style: CitationStyle;

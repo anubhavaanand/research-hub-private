@@ -7,7 +7,7 @@ dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT || 8787);
-const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+const apiKey = process.env.GEMINI_API_KEY;
 
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
@@ -40,6 +40,44 @@ app.post('/api/summarize', async (req, res) => {
   } catch (error) {
     console.error('Summarization error:', error);
     return res.status(500).json({ error: 'Summarization failed' });
+  }
+});
+
+app.post('/api/citation', async (req, res) => {
+  try {
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Server API key not configured' });
+    }
+
+    const { style, paper } = req.body || {};
+    if (!style || !paper || typeof paper !== 'object') {
+      return res.status(400).json({ error: 'style and paper are required' });
+    }
+
+    const prompt = `
+Generate a bibliographic citation for the following academic paper in ${style} format.
+Return ONLY the raw citation string. No markdown formatting.
+
+Metadata:
+Title: ${paper.title || 'N/A'}
+Authors: ${(paper.authors || []).join(', ')}
+Publication (Journal/Conf): ${paper.publication || 'N/A'}
+Year: ${paper.year || 'N/A'}
+Volume: ${paper.volume || 'N/A'}
+Issue: ${paper.issue || 'N/A'}
+Pages: ${paper.pages || 'N/A'}
+`;
+
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: { role: 'user', parts: [{ text: prompt }] },
+    });
+
+    return res.json({ citation: response.text || '' });
+  } catch (error) {
+    console.error('Citation generation error:', error);
+    return res.status(500).json({ error: 'Citation generation failed' });
   }
 });
 

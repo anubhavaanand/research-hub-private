@@ -71,7 +71,7 @@ export default function WelcomeGuide({ onClose }: WelcomeGuideProps) {
                             { icon: '⭐', title: 'Favorites', desc: 'Mark important papers and access them quickly' },
                             { icon: '📊', title: 'Reading Status', desc: 'Track progress with To Read, Reading, and Read statuses' },
                             { icon: '🔍', title: 'Instant Search', desc: 'Search by title, author, tags, or content' },
-                            { icon: '📑', title: 'AI Citations', desc: 'Generate citations in APA, MLA, Chicago, IEEE formats' },
+                            { icon: '📑', title: 'AI Citations', desc: 'Generate citations in APA, MLA, Chicago, IEEE formats through your backend' },
                             { icon: '💾', title: 'Local Storage', desc: 'All data saved in your browser - works offline!' }
                         ].map((feature, idx) => (
                             <div key={idx} style={{
@@ -127,7 +127,7 @@ export default function WelcomeGuide({ onClose }: WelcomeGuideProps) {
                         <li>Use <strong>filters</strong> on the left to organize by type or status</li>
                         <li>Click any paper to view full details and generate citations</li>
                         <li>Add <strong>personal notes</strong> and track citation counts</li>
-                        <li><strong>Optional:</strong> Add Google Gemini API key for AI citation generation</li>
+                        <li><strong>Optional:</strong> Connect a backend that holds your Google Gemini API key for AI citation generation</li>
                     </ol>
                 </div>
 
@@ -166,14 +166,21 @@ export default function WelcomeGuide({ onClose }: WelcomeGuideProps) {
                             padding: '2px 6px', 
                             borderRadius: '4px',
                             color: '#fff'
-                        }}>.env</code> file in the project root
+                        }}>.env</code> file on the backend server you control
                         <br />
                         3. Add: <code style={{ 
                             background: 'rgba(0, 0, 0, 0.3)', 
                             padding: '2px 6px', 
                             borderRadius: '4px',
                             color: '#fff'
-                        }}>API_KEY=your_key_here</code>
+                        }}>GEMINI_API_KEY=your_key_here</code>
+                        <br />
+                        4. Point the website to that backend with <code style={{ 
+                            background: 'rgba(0, 0, 0, 0.3)', 
+                            padding: '2px 6px', 
+                            borderRadius: '4px',
+                            color: '#fff'
+                        }}>VITE_API_BASE_URL</code> if needed
                     </p>
                 </div>
 
@@ -200,8 +207,8 @@ export default function WelcomeGuide({ onClose }: WelcomeGuideProps) {
                         lineHeight: '1.6'
                     }}>
                         <li>All data stored locally in your browser</li>
-                        <li>API keys validated and rate-limited (60 requests/min)</li>
-                        <li>No data sent to external servers (except AI citations)</li>
+                        <li>API keys kept on your backend, not in the browser</li>
+                        <li>No data sent to external servers except the AI requests you enable</li>
                         <li>Your research stays private and secure</li>
                     </ul>
                 </div>

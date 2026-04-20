@@ -173,7 +173,7 @@ feat: Add welcome guide, remove mock data, implement API security
 ### API Setup (Optional)
 1. Get free key from Google AI Studio
 2. Create `.env` file in project root
-3. Add `API_KEY=your_key_here`
+3. Add `GEMINI_API_KEY=your_key_here` to the backend environment
 4. Citations now generate with AI
 5. Rate limited to 60/min automatically
 

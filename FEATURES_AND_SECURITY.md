@@ -54,7 +54,7 @@ The **citation count field** is just a number you type in:
 
 **To enable:**
 1. Get free key: https://aistudio.google.com/app/apikey
-2. Create `.env` file: `API_KEY=your_key_here`
+2. Create `.env` file on your backend server: `GEMINI_API_KEY=your_key_here`
 3. Citations auto-generate with AI
 
 ---

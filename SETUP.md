@@ -25,7 +25,7 @@ npm install
 ### 3. Configure API Key
 ```bash
 cp .env.example .env
-# Edit .env and add your Google Gemini API key (server-side)
+# Edit .env and add your Google Gemini API key for the backend you run
 ```
 
 ### 4. Start Development
@@ -66,6 +66,9 @@ Create `.env` file:
 ```env
 GEMINI_API_KEY=your_google_gemini_api_key
 ```
+
+Only the backend server needs this key. People using the website do not enter an API key.
+If you deploy the frontend to GitHub Pages, keep the API key in a separate backend service you control.
 
 Get API key: https://aistudio.google.com/app/apikey
 
