@@ -13,7 +13,6 @@ import {
 } from './components/Icons';
 import CitationGenerator from './components/CitationGenerator';
 import DottedGlowBackground from './components/DottedGlowBackground';
-import { GoogleGenAI } from '@google/genai';
 
 function App() {
     const [papers, setPapers] = useState<Paper[]>(MOCK_PAPERS);
@@ -147,22 +146,26 @@ function App() {
         if (!selectedPaper || !selectedPaper.abstract) return;
         try {
             addToast("Summarizing abstract...");
-            const apiKey = process.env.API_KEY;
-            if(!apiKey) return;
-            const ai = new GoogleGenAI({ apiKey });
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-flash-preview',
-                contents: { 
-                    role: 'user', 
-                    parts: [{ text: `Summarize this academic abstract into one concise sentence:\n\n${selectedPaper.abstract}` }] 
-                }
+            const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '';
+            const response = await fetch(`${apiBaseUrl}/api/summarize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ abstract: selectedPaper.abstract }),
             });
-            const summary = response.text;
-            if (summary) updatePaper(selectedPaper.id, { abstract: summary });
+
+            if (!response.ok) {
+                throw new Error('Summarization request failed');
+            }
+
+            const data = await response.json();
+            const summary = data?.summary as string | undefined;
+            if (summary) {
+                updatePaper(selectedPaper.id, { abstract: summary });
+            }
             addToast("Abstract summarized by AI");
         } catch (e) {
             console.error(e);
-            addToast("Summarization failed");
+            addToast("Summarization failed. Configure backend API.");
         }
     };
 

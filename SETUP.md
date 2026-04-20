@@ -22,15 +22,16 @@ cd research-hub-private
 npm install
 ```
 
-### 3. Configure API Key (Optional)
+### 3. Configure API Key
 ```bash
 cp .env.example .env
-# Edit .env and add your Google Gemini API key
+# Edit .env and add your Google Gemini API key (server-side)
 ```
 
 ### 4. Start Development
 ```bash
 npm run dev
+npm run dev:server
 # Visit http://localhost:3000
 ```
 
@@ -63,7 +64,7 @@ npm run build
 
 Create `.env` file:
 ```env
-API_KEY=your_google_gemini_api_key
+GEMINI_API_KEY=your_google_gemini_api_key
 ```
 
 Get API key: https://aistudio.google.com/app/apikey
