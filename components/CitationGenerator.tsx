@@ -4,7 +4,6 @@
 */
 
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
 import { Paper, CitationStyle } from '../types';
 import { SparklesIcon, CheckIcon } from './Icons';
 
@@ -23,36 +22,30 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
         setCitation('');
         
         try {
-            const apiKey = process.env.API_KEY;
-            if (!apiKey) {
-                setCitation("Error: API Key missing.");
+            const apiBase = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '';
+            const response = await fetch(`${apiBase}/api/generate-citation`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: paper.title,
+                    authors: paper.authors,
+                    publication: paper.publication,
+                    year: paper.year,
+                    volume: paper.volume,
+                    issue: paper.issue,
+                    pages: paper.pages,
+                    style,
+                }),
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                setCitation(`Error: ${err.error || response.statusText}`);
                 return;
             }
 
-            const ai = new GoogleGenAI({ apiKey });
-            
-            // Construct a prompt that asks for a raw string
-            const prompt = `
-                Generate a bibliographic citation for the following academic paper in **${style}** format.
-                Return ONLY the raw citation string. No markdown formatting.
-                
-                Metadata:
-                Title: ${paper.title}
-                Authors: ${paper.authors.join(', ')}
-                Publication (Journal/Conf): ${paper.publication}
-                Year: ${paper.year}
-                Volume: ${paper.volume || 'N/A'}
-                Issue: ${paper.issue || 'N/A'}
-                Pages: ${paper.pages || 'N/A'}
-            `;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-flash-preview',
-                contents: { role: 'user', parts: [{ text: prompt }] }
-            });
-
-            const text = response.text || '';
-            setCitation(text.trim());
+            const data = await response.json();
+            setCitation(data.citation?.trim() || '');
         } catch (e) {
             console.error(e);
             setCitation("Failed to generate citation. Check network/API.");

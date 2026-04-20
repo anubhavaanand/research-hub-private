@@ -43,6 +43,45 @@ app.post('/api/summarize', async (req, res) => {
   }
 });
 
+app.post('/api/generate-citation', async (req, res) => {
+  try {
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Server API key not configured' });
+    }
+
+    const { title, authors, publication, year, volume, issue, pages, style } = req.body || {};
+    if (!title || typeof title !== 'string') {
+      return res.status(400).json({ error: 'title is required' });
+    }
+    if (!style || typeof style !== 'string') {
+      return res.status(400).json({ error: 'style is required' });
+    }
+
+    const prompt = `Generate a bibliographic citation for the following academic paper in **${style}** format.
+Return ONLY the raw citation string. No markdown formatting.
+
+Metadata:
+Title: ${title}
+Authors: ${Array.isArray(authors) ? authors.join(', ') : (authors || 'N/A')}
+Publication (Journal/Conf): ${publication || 'N/A'}
+Year: ${year || 'N/A'}
+Volume: ${volume || 'N/A'}
+Issue: ${issue || 'N/A'}
+Pages: ${pages || 'N/A'}`;
+
+    const ai = new GoogleGenAI({ apiKey });
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: { role: 'user', parts: [{ text: prompt }] },
+    });
+
+    return res.json({ citation: response.text?.trim() || '' });
+  } catch (error) {
+    console.error('Citation generation error:', error);
+    return res.status(500).json({ error: 'Citation generation failed' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API server running on http://localhost:${port}`);
 });
