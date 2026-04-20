@@ -49,7 +49,7 @@ app.post('/api/generate-citation', async (req, res) => {
       return res.status(500).json({ error: 'Server API key not configured' });
     }
 
-    const { title, authors, publication, year, volume, issue, pages, style } = req.body || {};
+    const { title, authors, publication, year, volume, issue, pages, documentText, style } = req.body || {};
     if (!title || typeof title !== 'string') {
       return res.status(400).json({ error: 'title is required' });
     }
@@ -58,16 +58,21 @@ app.post('/api/generate-citation', async (req, res) => {
     }
 
     const prompt = `Generate a bibliographic citation for the following academic paper in **${style}** format.
-Return ONLY the raw citation string. No markdown formatting.
+  Return ONLY the raw citation string. No markdown formatting.
 
-Metadata:
-Title: ${title}
-Authors: ${Array.isArray(authors) ? authors.join(', ') : (authors || 'N/A')}
-Publication (Journal/Conf): ${publication || 'N/A'}
-Year: ${year || 'N/A'}
-Volume: ${volume || 'N/A'}
-Issue: ${issue || 'N/A'}
-Pages: ${pages || 'N/A'}`;
+  If the metadata looks incomplete, infer the best citation details from the document text.
+
+  Metadata:
+  Title: ${title}
+  Authors: ${Array.isArray(authors) ? authors.join(', ') : (authors || 'N/A')}
+  Publication (Journal/Conf): ${publication || 'N/A'}
+  Year: ${year || 'N/A'}
+  Volume: ${volume || 'N/A'}
+  Issue: ${issue || 'N/A'}
+  Pages: ${pages || 'N/A'}
+
+  Document text:
+  ${documentText ? documentText.slice(0, 12000) : 'N/A'}`;
 
     const ai = new GoogleGenAI({ apiKey });
     const response = await ai.models.generateContent({

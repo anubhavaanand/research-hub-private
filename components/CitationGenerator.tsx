@@ -34,6 +34,7 @@ export default function CitationGenerator({ paper }: CitationGeneratorProps) {
                     volume: paper.volume,
                     issue: paper.issue,
                     pages: paper.pages,
+                    documentText: paper.documentText,
                     style,
                 }),
             });

@@ -21,6 +21,7 @@ export interface Paper {
   isFavorite: boolean;
   fileName?: string;
   fileUrl?: string; // For blob preview
+  documentText?: string;
   
   // New Research Features
   status: ReadingStatus;

@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
+import mammoth from 'mammoth/mammoth.browser';
 import { Paper, PaperType, ReadingStatus } from './types';
 import { generateId, formatDate, MOCK_PAPERS } from './utils';
 import { 
@@ -83,9 +84,28 @@ function App() {
         setTimeout(() => setToasts(prev => prev.slice(1)), 3000);
     };
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
+
+        let documentText: string | undefined;
+        const fileName = file.name.toLowerCase();
+
+        if (fileName.endsWith('.docx')) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                documentText = result.value.trim();
+            } catch (error) {
+                console.error('Failed to extract DOCX text:', error);
+            }
+        } else if (fileName.endsWith('.txt')) {
+            try {
+                documentText = await file.text();
+            } catch (error) {
+                console.error('Failed to read text file:', error);
+            }
+        }
 
         const newPaper: Paper = {
             id: generateId(),
@@ -98,6 +118,7 @@ function App() {
             isFavorite: false,
             fileName: file.name,
             fileUrl: URL.createObjectURL(file),
+            documentText,
             status: 'toread',
             tags: [],
             citationCount: 0
